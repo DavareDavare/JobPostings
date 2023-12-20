@@ -1,0 +1,89 @@
+﻿<a asp-controller="JobPosting" asp-action="CreateEditJobPosting">Neues Inserat anlegen</a>
+<hr />
+<table id="jobPostingTable" class="table table-bordered table-striped table-hover dataTable">
+    <thead class="table-dark">
+        <tr>
+            <th data-sort="asc">Job Title</th>
+            <th data-sort="asc">Ort</th>
+            <th data-sort="asc">Firmenname</th>
+            <th data-sortable="false">Bild</th>
+            <th data-sortable="false">Editieren</th>
+            <th data-sortable="false">Löschen</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var isEvenRow = false;
+            foreach (JobPosting jobPosting in Model)
+            {
+                <tr class="@(isEvenRow ? "even-row" : "odd-row")">
+                    <td>@jobPosting.JobTitle</td>
+                    <td>@jobPosting.JobLocation</td>
+                    <td>@jobPosting.Companyname</td>
+                    <td>
+                        <img src="data:image;base64, @System.Convert.ToBase64String(jobPosting.CompanyImage)" />
+                    </td>
+                    <td>
+                        <a asp-route-id="@jobPosting.id" asp-controller="JobPosting" asp-action="CreateEditJobPosting" class="btn btn-warning">Edit</a>
+                    </td>
+                    <td>
+                        <button type="button" onclick="onDeleteClicked(@jobPosting.id)" class="btn btn-danger">Delete</button>
+                    </td>
+                </tr>
+                isEvenRow = !isEvenRow;
+            }
+        }
+    </tbody>
+</table>
+
+
+@section Scripts {
+    <style>
+        .even-row {
+            background-color: #f4f4f4; /* Set your desired background color for even rows */
+        }
+
+        .odd-row {
+            background-color: #aaaaaa; /* Set your desired background color for odd rows */
+        }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script>
+        var jobIdToDelete;
+
+        function onDeleteClicked(id) {
+            jobIdToDelete = id;
+            $('#confirmationModal').modal('show');
+        }
+
+        $(document).ready(function () {
+            $('#jobPostingTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/German.json"
+                }
+            });
+        });
+
+        $('#confirmDelete').on('click', function () {
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("DeleteJobPosting")",
+                data: { id: jobIdToDelete },
+                success: function (msg) {
+                    $('#confirmationModal').modal('hide');
+                    location.reload();
+                },
+                error: function (msg) {
+                    $('#confirmationModal').modal('hide');
+                }
+            });
+        });
+
+        $('#cancel').on('click', function () {
+            jobIdToDelete = null; // Reset the jobIdToDelete when the modal is closed
+            $('#confirmationModal').modal('hide'); // Manually close the modal
+        });
+    </script>
+}

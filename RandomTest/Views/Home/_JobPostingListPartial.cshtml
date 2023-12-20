@@ -1,0 +1,24 @@
+﻿@model List<JobPosting>
+
+<div class="row">
+    @foreach (var job in Model)
+    {
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <img src="data:image;base64, @System.Convert.ToBase64String(job.CompanyImage)" class="card-img-top" alt="Company Logo">
+                <div class="card-body">
+                    <h5 class="card-title">@job.JobTitle</h5>
+                    <p class="card-text">Ort: @job.JobLocation</p>
+                    @if (!string.IsNullOrEmpty(job.OwnerUsername))
+                    {
+                        <p class="card-text">Owner: @job.OwnerUsername</p>
+                    }
+                    else
+                    {
+                        <p class="card-text">Owner: Unknown</p>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
